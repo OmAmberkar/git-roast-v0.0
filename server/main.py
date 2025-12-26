@@ -66,85 +66,78 @@ def fetch_repo_content(owner: str, repo: str):
     """
     Fetches README and a few code files from GitHub using the public API.
     """
-    headers = {
-        "User-Agent": "Git-Roast-App/1.0"
-    }
-    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-    if GITHUB_TOKEN and GITHUB_TOKEN.strip():
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "").strip()
+    if GITHUB_TOKEN == "your_github_token_here":
+        GITHUB_TOKEN = "" # Reset if it's just the template value
 
-    def github_get(url):
-        log_to_file(f"DEBUG: github_get -> {url}")
-        res = requests.get(url, headers=headers)
-        if res.status_code == 401:
-            log_to_file("WARNING: GITHUB_TOKEN is invalid (401). Retrying without token...")
-            # Still need User-Agent for public requests
-            public_headers = {"User-Agent": "Git-Roast-App/1.0"}
-            return requests.get(url, headers=public_headers)
-        return res
+    base_headers = {"User-Agent": "Git-Roast-App/1.0"}
+    auth_headers = {**base_headers, "Authorization": f"token {GITHUB_TOKEN}"} if GITHUB_TOKEN else base_headers
+
+    def github_get(url, use_auth=True):
+        current_headers = auth_headers if use_auth else base_headers
+        log_to_file(f"DEBUG: GITHUB_REQ: {url} (Auth: {use_auth})")
+        try:
+            res = requests.get(url, headers=current_headers, timeout=10)
+            log_to_file(f"DEBUG: GITHUB_RES: {res.status_code}")
+            
+            # If auth fails OR if a public file is hidden by a bad token (returns 404)
+            if res.status_code in [401, 403, 404] and use_auth:
+                log_to_file(f"DEBUG: Request failed ({res.status_code}) with auth, retrying without auth...")
+                return github_get(url, use_auth=False)
+            return res
+        except Exception as e:
+            log_to_file(f"DEBUG: Request failed: {str(e)}")
+            return None
 
     content = ""
 
     # 1. Fetch README
     readme_url = f"https://api.github.com/repos/{owner}/{repo}/readme"
-    try:
-        r = github_get(readme_url)
-        if r.status_code == 200:
-            readme_data = r.json()
-            # Use authenticated request for raw content too
-            raw_res = github_get(readme_data["download_url"])
-            if raw_res.status_code == 200:
-                content += f"--- README.md ---\n{raw_res.text[:2000]}\n\n"
-        else:
-            log_to_file(f"DEBUG: Readme status: {r.status_code}")
-    except Exception as e:
-        log_to_file(f"DEBUG: Error fetching readme: {e}")
+    r = github_get(readme_url)
+    if r and r.status_code == 200:
+        readme_data = r.json()
+        # Use simple get for raw content, but with User-Agent
+        raw_res = github_get(readme_data["download_url"])
+        if raw_res and raw_res.status_code == 200:
+            content += f"--- README.md ---\n{raw_res.text[:2000]}\n\n"
+    elif r:
+        log_to_file(f"DEBUG: Readme status: {r.status_code}")
 
     # 2. Fetch file list and pick a code file
     contents_url = f"https://api.github.com/repos/{owner}/{repo}/contents"
-    try:
-        r = github_get(contents_url)
-        log_to_file(f"DEBUG: GitHub Contents API status: {r.status_code}")
+    r = github_get(contents_url)
+    
+    if r and r.status_code == 200:
+        files = r.json()
+        code_files = [f for f in files if f["type"] == "file" and f["name"].lower().endswith(('.py', '.js', '.ts', '.jsx', '.tsx', '.go', '.rs', '.java', '.cpp', '.c', '.h', '.cs', '.php', '.rb'))]
         
-        if r.status_code == 200:
-            files = r.json()
-            # Try to find some code files
-            code_files = [f for f in files if f["type"] == "file" and f["name"].lower().endswith(('.py', '.js', '.ts', '.jsx', '.tsx', '.go', '.rs', '.java', '.cpp', '.c', '.h', '.cs', '.php', '.rb'))]
-            
-            log_to_file(f"DEBUG: Found {len(code_files)} potential code files")
-            
-            if not code_files:
-                # If no code files in root, try to find directories and look into one
-                dirs = [f for f in files if f["type"] == "dir" and not f["name"].startswith('.')]
-                if dirs:
-                    log_to_file(f"DEBUG: No files in root, looking into {dirs[0]['name']}")
-                    r_sub = github_get(dirs[0]["url"])
-                    if r_sub.status_code == 200:
-                        sub_files = r_sub.json()
-                        code_files += [f for f in sub_files if f["type"] == "file" and f["name"].lower().endswith(('.py', '.js', '.ts', '.jsx', '.tsx', '.go', '.rs', '.java', '.cpp', '.c', '.h', '.cs', '.php', '.rb'))]
-                        log_to_file(f"DEBUG: Found {len(code_files)} code files after subfolder search")
+        log_to_file(f"DEBUG: Found {len(code_files)} potential code files")
+        
+        if not code_files:
+            dirs = [f for f in files if f["type"] == "dir" and not f["name"].startswith('.')]
+            if dirs:
+                log_to_file(f"DEBUG: No files in root, looking into {dirs[0]['name']}")
+                r_sub = github_get(dirs[0]["url"])
+                if r_sub and r_sub.status_code == 200:
+                    sub_files = r_sub.json()
+                    code_files += [f for f in sub_files if f["type"] == "file" and f["name"].lower().endswith(('.py', '.js', '.ts', '.jsx', '.tsx', '.go', '.rs', '.java', '.cpp', '.c', '.h', '.cs', '.php', '.rb'))]
 
-            # Fetch up to 3 code files
-            for file in code_files[:3]:
-                f_res = github_get(file["download_url"])
-                if f_res.status_code == 200:
-                    content += f"--- {file['name']} ---\n{f_res.text[:1500]}\n\n"
-        elif r.status_code == 403:
-            log_to_file("DEBUG: GITHUB_RATE_LIMIT_EXCEEDED")
-            raise HTTPException(status_code=403, detail="GITHUB_RATE_LIMIT_EXCEEDED")
-        elif r.status_code == 404:
-            log_to_file(f"DEBUG: Repo not found or private: {owner}/{repo}")
+        for file in code_files[:3]:
+            f_res = github_get(file["download_url"])
+            if f_res and f_res.status_code == 200:
+                content += f"--- {file['name']} ---\n{f_res.text[:1500]}\n\n"
+    elif r:
+        if r.status_code == 404:
             raise HTTPException(status_code=404, detail="REPO_NOT_FOUND_OR_PRIVATE")
-        else:
-            log_to_file(f"DEBUG: Contents error: {r.status_code} - {r.text[:100]}")
-    except HTTPException:
-        raise
-    except Exception as e:
-        log_to_file(f"DEBUG: Error fetching files: {e}")
+        elif r.status_code == 403:
+            raise HTTPException(status_code=403, detail="GITHUB_RATE_LIMIT_EXCEEDED")
 
     if not content:
         log_to_file(f"DEBUG: CONTENT_FETCH_FAILED for {owner}/{repo}")
-        raise HTTPException(status_code=502, detail=f"COULD_NOT_FETCH_GITHUB_CONTENT_FOR_{owner}_{repo}")
+        raise HTTPException(status_code=502, detail=f"COULD_NOT_FETCH_GITHUB_CONTENT (Are there any code files?)")
+        
+    log_to_file(f"DEBUG: CONTENT_FETCH_SUCCESS for {owner}/{repo}")
+    return content
         
     log_to_file(f"DEBUG: CONTENT_FETCH_SUCCESS for {owner}/{repo}")
     return content
