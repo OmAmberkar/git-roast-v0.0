@@ -66,16 +66,21 @@ def fetch_repo_content(owner: str, repo: str):
     """
     Fetches README and a few code files from GitHub using the public API.
     """
-    headers = {}
+    headers = {
+        "User-Agent": "Git-Roast-App/1.0"
+    }
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-    if GITHUB_TOKEN:
+    if GITHUB_TOKEN and GITHUB_TOKEN.strip():
         headers["Authorization"] = f"token {GITHUB_TOKEN}"
 
     def github_get(url):
+        log_to_file(f"DEBUG: github_get -> {url}")
         res = requests.get(url, headers=headers)
         if res.status_code == 401:
             log_to_file("WARNING: GITHUB_TOKEN is invalid (401). Retrying without token...")
-            return requests.get(url)
+            # Still need User-Agent for public requests
+            public_headers = {"User-Agent": "Git-Roast-App/1.0"}
+            return requests.get(url, headers=public_headers)
         return res
 
     content = ""
@@ -86,8 +91,10 @@ def fetch_repo_content(owner: str, repo: str):
         r = github_get(readme_url)
         if r.status_code == 200:
             readme_data = r.json()
-            readme_content = requests.get(readme_data["download_url"]).text
-            content += f"--- README.md ---\n{readme_content[:2000]}\n\n"
+            # Use authenticated request for raw content too
+            raw_res = github_get(readme_data["download_url"])
+            if raw_res.status_code == 200:
+                content += f"--- README.md ---\n{raw_res.text[:2000]}\n\n"
         else:
             log_to_file(f"DEBUG: Readme status: {r.status_code}")
     except Exception as e:
@@ -98,6 +105,7 @@ def fetch_repo_content(owner: str, repo: str):
     try:
         r = github_get(contents_url)
         log_to_file(f"DEBUG: GitHub Contents API status: {r.status_code}")
+        
         if r.status_code == 200:
             files = r.json()
             # Try to find some code files
@@ -118,13 +126,19 @@ def fetch_repo_content(owner: str, repo: str):
 
             # Fetch up to 3 code files
             for file in code_files[:3]:
-                f_res = requests.get(file["download_url"])
+                f_res = github_get(file["download_url"])
                 if f_res.status_code == 200:
                     content += f"--- {file['name']} ---\n{f_res.text[:1500]}\n\n"
         elif r.status_code == 403:
             log_to_file("DEBUG: GITHUB_RATE_LIMIT_EXCEEDED")
+            raise HTTPException(status_code=403, detail="GITHUB_RATE_LIMIT_EXCEEDED")
+        elif r.status_code == 404:
+            log_to_file(f"DEBUG: Repo not found or private: {owner}/{repo}")
+            raise HTTPException(status_code=404, detail="REPO_NOT_FOUND_OR_PRIVATE")
         else:
             log_to_file(f"DEBUG: Contents error: {r.status_code} - {r.text[:100]}")
+    except HTTPException:
+        raise
     except Exception as e:
         log_to_file(f"DEBUG: Error fetching files: {e}")
 
