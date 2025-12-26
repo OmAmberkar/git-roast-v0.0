@@ -1,0 +1,97 @@
+---
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<canvas id="matrix-canvas"></canvas>
+		<slot />
+		<style is:global>
+			:root {
+				--accent: 136, 58, 234;
+				--accent-light: 224, 204, 250;
+				--accent-dark: 49, 10, 101;
+				--accent-gradient: linear-gradient(
+					45deg,
+					rgb(var(--accent)),
+					rgb(var(--accent-light)) 30%,
+					white 60%
+				);
+			}
+			html {
+				font-family: 'Courier New', Courier, monospace;
+				background: #0a0a0a;
+				color: #00ff41;
+				overflow-x: hidden;
+			}
+			body {
+				margin: 0;
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
+			#matrix-canvas {
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: -1;
+				opacity: 0.15;
+			}
+		</style>
+		<script>
+			const canvas = document.getElementById('matrix-canvas') as HTMLCanvasElement;
+			const ctx = canvas.getContext('2d');
+
+			if (ctx) {
+				canvas.width = window.innerWidth;
+				canvas.height = window.innerHeight;
+
+				const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~";
+				const fontSize = 16;
+				const columns = canvas.width / fontSize;
+				const drops = Array(Math.floor(columns)).fill(1);
+
+				function draw() {
+					if (!ctx) return;
+					ctx.fillStyle = "rgba(10, 10, 10, 0.05)";
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+					ctx.fillStyle = "#0f0";
+					ctx.font = fontSize + "px monospace";
+
+					for (let i = 0; i < drops.length; i++) {
+						const text = characters.charAt(Math.floor(Math.random() * characters.length));
+						ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+						if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+							drops[i] = 0;
+						}
+						drops[i]++;
+					}
+				}
+
+				setInterval(draw, 33);
+
+				window.addEventListener('resize', () => {
+					canvas.width = window.innerWidth;
+					canvas.height = window.innerHeight;
+				});
+			}
+		</script>
+	</body>
+</html>
