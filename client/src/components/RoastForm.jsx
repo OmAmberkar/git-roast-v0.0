@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 /**
  * RoastForm Component
- * An interactive form that mimics a terminal command line interface.
+ * The "Bypass" Version: Starts audio on user interaction.
  */
 const RoastForm = () => {
   const [repoUrl, setRepoUrl] = useState('');
@@ -10,24 +10,66 @@ const RoastForm = () => {
   const [roastData, setRoastData] = useState(null);
   const [error, setError] = useState(null);
   const [errorCode, setErrorCode] = useState(null);
+  const [view, setView] = useState('input');
 
-  // Audio References
+  // --- AUDIO REFS ---
+  const bgAudioRef = useRef(null);
+  const thinkingAudioRef = useRef(null);
+
+  // --- AUDIO CONTROLLER ---
+
+  const initAudio = () => {
+    // Only create audio if it doesn't exist yet
+    if (!bgAudioRef.current) {
+      bgAudioRef.current = new Audio('/audio/background sound.mp3');
+      bgAudioRef.current.volume = 0.5;
+      bgAudioRef.current.loop = true;
+      bgAudioRef.current.play().catch(e => console.log("Audio waiting for interaction..."));
+    }
+
+    if (!thinkingAudioRef.current) {
+      thinkingAudioRef.current = new Audio('/audio/cyber-10071.mp3');
+      thinkingAudioRef.current.volume = 0.4;
+      thinkingAudioRef.current.loop = true;
+    }
+  };
+
   const playClick = () => {
     const audio = new Audio('/audio/button click 1.mp3');
     audio.volume = 0.5;
-    audio.play().catch(() => {});
+    audio.play().catch(() => { });
   };
 
   const playSuccess = () => {
     const audio = new Audio('/audio/aggressive-tech-cyber-logo-452884.mp3');
     audio.volume = 0.6;
-    audio.play().catch(() => {});
+    audio.play().catch(() => { });
   };
 
   const playError = () => {
-    const audio = new Audio('/audio/button click 2.mp3'); // Heavier click for error
+    const audio = new Audio('/audio/button click 2.mp3');
     audio.volume = 0.5;
-    audio.play().catch(() => {});
+    audio.play().catch(() => { });
+  };
+
+  const switchToThinkingMode = () => {
+    // Stop BG, Start Think
+    if (bgAudioRef.current) bgAudioRef.current.pause();
+    if (thinkingAudioRef.current) {
+      thinkingAudioRef.current.currentTime = 0;
+      thinkingAudioRef.current.play().catch(() => { });
+    }
+  };
+
+  const switchToNormalMode = () => {
+    // Stop Think, Start BG
+    if (thinkingAudioRef.current) {
+      thinkingAudioRef.current.pause();
+      thinkingAudioRef.current.currentTime = 0;
+    }
+    if (bgAudioRef.current) {
+      bgAudioRef.current.play().catch(() => { });
+    }
   };
 
   const handleRoast = async (e) => {
@@ -36,17 +78,20 @@ const RoastForm = () => {
 
     playClick();
     setLoading(true);
+    switchToThinkingMode(); // 🎵 Enter Cyber Mode
+
     setError(null);
     setErrorCode(null);
     setRoastData(null);
+
+    // Trigger Global Glitch
+    window.dispatchEvent(new CustomEvent('toggle-glitch', { detail: { active: true } }));
 
     try {
       const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://127.0.0.1:8001';
       const response = await fetch(`${apiUrl}/api/roast`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repo_url: repoUrl }),
       });
 
@@ -56,355 +101,168 @@ const RoastForm = () => {
         const detail = errorData.detail || 'UNKNOWN_DESTRUCTION_ERROR';
 
         switch (response.status) {
-          case 404:
-            throw new Error(
-              "I can't roast what I can't see. Is this repo private? My x-ray vision isn't working today."
-            );
-          case 403:
-            throw new Error(
-              'GitHub is tired of my insults. Rate limit hit. Take a break and write better code.'
-            );
-          case 502:
-            throw new Error(
-              "GitHub's servers are cringing too hard at your repo. I couldn't reach them."
-            );
-          default:
-            throw new Error(detail);
+          case 404: throw new Error("I can't roast what I can't see. Is this repo private?");
+          case 403: throw new Error('GitHub is tired of my insults. Rate limit hit.');
+          case 422: throw new Error("This repo is empty or boring. Give me some CODE to destroy.");
+          case 503: throw new Error("SETUP REQUIRED: Change the API Key in server/.env");
+          case 502: throw new Error("GitHub's servers are cringing too hard at your repo.");
+          default: throw new Error(detail);
         }
       }
 
       const data = await response.json();
+      console.log("ROAST DATA RECEIVED:", data); // DEBUG LOG to checking what we get
+
+      if (!data || !data.roast) {
+        console.error("INVALID DATA STRUCTURE:", data);
+        throw new Error("Received empty roast from server.");
+      }
+
       setRoastData(data);
+      setView('result');
+
+      switchToNormalMode(); // 🎵 Back to Vibe Mode
       playSuccess();
+
     } catch (err) {
       setError(err.message);
+      switchToNormalMode(); // 🎵 Back to Vibe Mode
       playError();
     } finally {
       setLoading(false);
+      window.dispatchEvent(new CustomEvent('toggle-glitch', { detail: { active: false } }));
     }
   };
 
   return (
-    <div className="terminal-container">
-      <form
-        onSubmit={handleRoast}
-        className="cli-form"
-      >
-        <label
-          htmlFor="repo-input"
-          className="cli-prompt"
-        >
-          git-roast:~$
-        </label>
-        <div className="input-wrapper">
-          <input
-            id="repo-input"
-            type="text"
-            value={repoUrl}
-            onChange={(e) => setRepoUrl(e.target.value)}
-            placeholder="enter_github_repo_url..."
-            className="cli-input"
-            autoFocus
-          />
-          <span className="blinking-cursor">_</span>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`glitch-button ${loading ? 'loading' : ''}`}
-        >
-          {loading ? 'ANALYZING_VICTIM...' : 'INITIATE_DESTRUCTION'}
-        </button>
-      </form>
-
-      {error && (
-        <div className="system-alert error-glitch">
-          <div className="alert-header">
-            <span className="alert-icon">⚠</span>
-            <span>CRITICAL_SYSTEM_FAILURE</span>
-            <span className="alert-code">
-              ERR_CODE:{' '}
-              {errorCode || (error?.includes('private') ? '404' : '500_FAIL')}
-            </span>
-          </div>
-          <div className="alert-body">
-            <p
-              className="glitch-text"
-              data-text={error}
-            >
-              {error}
-            </p>
-          </div>
-          <div className="alert-footer">
-            <span className="scanline"></span>
-            {error.includes('private') && (
-              <p className="hint-text">
-                AUTHENTICATION_REQUIRED: UPGRADE_TOKEN_SCOPES
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {roastData && (
-        <div className="roast-output fade-in">
-          <div className="report-header">
-            <span className="line"></span>
-            <h3>DESTRUCTION_REPORT</h3>
-            <span className="line"></span>
-          </div>
-          <p className="roast-text">&quot;{roastData.roast}&quot;</p>
-          <div className="score-container">
-            <span className="score-label">LAMENESS_SCORE:</span>
-            <span className="score-value">{roastData.score}</span>
-            <div className="score-bar">
-              <div
-                className="score-fill"
-                style={{ width: `${roastData.score}%` }}
-              ></div>
+    <div className={`flex items-center justify-center bg-transparent relative ${loading ? 'animate-world-shake' : ''}`}>
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="relative -top-10 w-screen h-screen z-[1000] bg-transparent">
+          <div className="glitch-scanner"></div>
+          <div className="brain-melting-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-50">
+            <h2 className="text-terminal-red text-[2rem] font-black tracking-[5px] mb-8 animate-pulse shadow-[0_0_10px_currentColor]">NEURAL_OVERLOAD_DETECTED</h2>
+            <div className="flex flex-col gap-2 font-mono text-terminal-green text-[0.8rem] text-left border-l-2 border-terminal-red pl-4 bg-[rgba(0,0,0,0.8)] p-4">
+              <span className="animate-blink">SYMPTOMS: CONFUSION, NAUSEA, DISGUST</span>
+              <span className="block">ACTION: BYPASSING_LIMITS.exe</span>
+              <span className="block text-terminal-red">BRAIN_CELLS_REMAINING: 0.003%</span>
+              <span className="block">PROCESSING_LEVEL_OF_LAMENESS: 11/10</span>
+            </div>
+            <div className="w-full h-[10px] bg-terminal-dark mt-8 relative overflow-hidden">
+              <div className="absolute h-full w-full bg-terminal-green shadow-[0_0_20px_currentColor] animate-loading-crazy"></div>
             </div>
           </div>
+          <div className="noise-canvas"></div>
         </div>
       )}
 
-      <style>{`
-        .terminal-container {
-          width: 100%;
-          max-width: 650px;
-          padding: 2.5rem;
-          background: rgba(0, 10, 0, 0.9);
-          border: 1px solid #0f0;
-          box-shadow: 0 0 30px rgba(0, 255, 65, 0.15), inset 0 0 10px rgba(0, 255, 65, 0.1);
-          position: relative;
-          overflow: hidden;
-        }
+      {/* Main Content */}
+      {!loading && <div className={`w-full h-full flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${view}`}>
+        {view === 'input' ? (
+          <div className="w-[80vw] max-w-[1000px] h-auto flex flex-col items-center justify-center z-10">
+            <div className="w-full max-w-[600px] bg-terminal-dim border border-terminal-green shadow-[0_0_40px_rgba(0,243,255,0.2)] relative backdrop-blur-sm">
+              <div className="bg-terminal-header p-[8px_15px] flex items-center gap-2 border-b border-[#1a1a1a]">
+                <span className="w-[10px] h-[10px] rounded-full opacity-80 bg-[#ff5f56]"></span>
+                <span className="w-[10px] h-[10px] rounded-full opacity-80 bg-[#ffbd2e]"></span>
+                <span className="w-[10px] h-[10px] rounded-full opacity-80 bg-cyan-500 shadow-[0_0_5px_cyan]"></span>
+                <span className="ml-auto text-[#666] text-[0.7rem] tracking-[1px]">git-roast --bash</span>
+              </div>
 
-        .terminal-container::before {
-          content: " ";
-          display: block;
-          position: absolute;
-          top: 0; left: 0; bottom: 0; right: 0;
-          background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-          z-index: 2;
-          background-size: 100% 2px, 3px 100%;
-          pointer-events: none;
-        }
+              <form onSubmit={handleRoast} className="p-[30px] flex flex-col gap-8">
+                <div className="flex items-center gap-[10px] text-[1.2rem]">
+                  <span className="text-terminal-green shadow-[0_0_10px_currentColor] whitespace-nowrap">root@git-roast:~$</span>
 
-        .cli-form {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-          z-index: 3;
-          position: relative;
-        }
+                  {/* THE MAGIC FIX: initAudio on Focus/Click */}
+                  <input
+                    id="repo-url"
+                    name="repo-url"
+                    type="text"
+                    value={repoUrl}
+                    onChange={(e) => setRepoUrl(e.target.value)}
+                    onFocus={initAudio}
+                    onClick={initAudio}
+                    placeholder="inject_repo_url_here..."
+                    className="bg-transparent border-none outline-none text-white font-inherit text-[1.2rem] w-full placeholder:text-gray-600"
+                    disabled={loading}
+                    autoFocus
+                  />
+                  {!repoUrl && <span className="animate-blink">_</span>}
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading || !repoUrl}
+                  className="bg-terminal-green text-black border-none p-[15px] font-black uppercase tracking-[5px] cursor-pointer transition-all duration-200 hover:bg-white hover:text-terminal-green hover:shadow-[0_0_20px_white] disabled:opacity-50 disabled:cursor-not-allowed clip-path-polygon-[0_0,100%_0,100%_70%,95%_100%,0_100%]"
+                >
+                  {loading ? 'CALCULATING_DESTRUCTION...' : 'EXECUTE_ROAST.sh'}
+                </button>
+              </form>
 
-        .cli-prompt {
-          font-weight: bold;
-          color: #0f0;
-          text-shadow: 0 0 5px #0f0;
-          font-size: 0.9rem;
-        }
+              {error && (
+                <div className="border-t border-[#f00] bg-[rgba(20,0,0,0.9)] p-4 animate-pulse">
+                  <p className="text-terminal-red font-bold text-[0.9rem]">» ERROR: {error}</p>
+                  <p className="text-terminal-red text-[0.7rem] mt-1 opacity-80">SYSTEM_STABILITY: CRITICAL</p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Result View */
+          <div className="w-[80vw] max-w-[1000px] h-auto flex flex-col items-center justify-center z-10">
+            <div className="w-full h-[80vh] bg-terminal-dim border border-terminal-green flex flex-col relative overflow-hidden">
+              <div className="p-5 bg-black border-b-[3px] border-terminal-green flex items-center justify-between">
+                <div className="text-terminal-red font-bold animate-blink text-[0.8rem]">rec</div>
+                <h2 className="text-terminal-green text-[1.2rem] tracking-[5px] m-0">DESTRUCTION_DASHBOARD</h2>
+                <button onClick={() => setView('input')} className="bg-transparent border border-terminal-red text-terminal-red px-[15px] py-[5px] text-[0.7rem] cursor-pointer hover:bg-terminal-red hover:text-white transition-colors">
+                  REBOOT_SYSTEM
+                </button>
+              </div>
 
-        .input-wrapper {
-          display: flex;
-          align-items: center;
-          border: 1px solid #111;
-          background: rgba(0, 20, 0, 0.5);
-          padding: 0.8rem;
-          box-shadow: inset 0 0 10px #000;
-        }
+              <div className="flex-1 grid grid-cols-[2fr_1fr] p-[2px] gap-[2px] bg-terminal-green">
+                <div className="bg-terminal-black/80 relative flex flex-col backdrop-blur-md">
+                  {/* Fixed Header */}
+                  <div className="w-full h-[40px] bg-terminal-dark/90 border-b border-terminal-green/20 flex items-center px-4 shrink-0 z-10 shadow-lg">
+                    <span className="text-[0.6rem] text-terminal-green tracking-[2px] uppercase font-bold flex items-center gap-2">
+                      <span className="w-2 h-2 bg-terminal-green rounded-full animate-pulse"></span>
+                      TRANSCRIPTION_OF_SHAME
+                    </span>
+                  </div>
 
-        .cli-input {
-          background: transparent;
-          border: none;
-          outline: none;
-          color: #0f0;
-          font-family: 'Courier New', Courier, monospace;
-          font-size: 1.1rem;
-          width: 100%;
-          caret-color: transparent;
-        }
+                  {/* Scrollable Content */}
+                  <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                    <p className="text-[1.1rem] text-cyan-50/90 leading-relaxed font-mono drop-shadow-[0_0_2px_rgba(0,243,255,0.3)] whitespace-pre-wrap selection:bg-terminal-green selection:text-black">
+                      &quot;{roastData.roast}&quot;
+                    </p>
+                    <div className="h-4"></div> {/* Bottom spacer */}
+                  </div>
 
-        .blinking-cursor {
-          color: #0f0;
-          animation: blink 1s step-end infinite;
-          font-size: 1.1rem;
-          text-shadow: 0 0 5px #0f0;
-        }
+                  {/* Decor corners */}
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-terminal-green/50 opacity-50 pointer-events-none"></div>
+                </div>
 
-        @keyframes blink {
-          50% { opacity: 0; }
-        }
-        
-        .glitch-button {
-          padding: 1rem;
-          background: transparent;
-          color: #0f0;
-          border: 1px solid #0f0;
-          font-weight: bold;
-          cursor: pointer;
-          position: relative;
-          text-transform: uppercase;
-          transition: all 0.2s ease;
-          letter-spacing: 2px;
-          font-family: inherit;
-        }
+                <div className="bg-black p-[30px] relative overflow-y-auto flex flex-col">
+                  <div className="mb-[30px]">
+                    <div className="text-[0.7rem] text-terminal-green mb-[5px]">LAMENESS_PERCENTAGE</div>
+                    <div className="text-[2.5rem] font-black text-terminal-red leading-none">{roastData.score}%</div>
+                    <div className="h-[8px] bg-[#1a1a1a] mt-[10px]">
+                      <div className="h-full bg-terminal-red shadow-[0_0_15px_currentColor]" style={{ width: `${roastData.score}%` }}></div>
+                    </div>
+                  </div>
+                  <div className="mb-[30px]">
+                    <div className="text-[0.7rem] text-terminal-green mb-[5px]">AI_BRAIN_DAMAGE</div>
+                    <div className="text-[2.5rem] font-black text-terminal-red leading-none">CRITICAL</div>
+                  </div>
+                </div>
+              </div>
 
-        .glitch-button:hover:not(:disabled) {
-          background: rgba(0, 255, 0, 0.1);
-          box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-          text-shadow: 0 0 8px #0f0;
-        }
-
-        .glitch-button:disabled {
-          border-color: #003300;
-          color: #003300;
-          cursor: wait;
-        }
-
-        /* System Alert Styling */
-        .system-alert {
-          margin-top: 2rem;
-          border-left: 5px solid #f00;
-          background: rgba(50, 0, 0, 0.3);
-          padding: 1.5rem;
-          position: relative;
-          z-index: 5;
-          animation: alert-entry 0.3s ease-out;
-          border: 1px solid rgba(255, 0, 0, 0.3);
-        }
-
-        @keyframes alert-entry {
-          from { transform: translateX(-20px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-
-        .alert-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          color: #f00;
-          font-weight: bold;
-          font-size: 0.8rem;
-          margin-bottom: 1rem;
-          border-bottom: 1px solid rgba(255, 0, 0, 0.2);
-          padding-bottom: 0.5rem;
-        }
-
-        .alert-icon {
-          font-size: 1.2rem;
-          animation: pulse 1s infinite;
-        }
-
-        .alert-body {
-          color: #ff9999;
-          font-style: italic;
-          line-height: 1.6;
-        }
-
-        /* Glitch Text Effect */
-        .glitch-text {
-          position: relative;
-        }
-        
-        .hint-text {
-          margin-top: 1rem;
-          font-size: 0.75rem;
-          color: #ff6666;
-          opacity: 0.7;
-          border-top: 1px dashed rgba(255, 0, 0, 0.2);
-          padding-top: 0.5rem;
-        }
-
-        /* Roast Output Styling */
-        .roast-output {
-          margin-top: 2.5rem;
-          padding-top: 1rem;
-          z-index: 3;
-          position: relative;
-        }
-
-        .report-header {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-bottom: 1.5rem;
-        }
-
-        .report-header .line {
-          flex: 1;
-          height: 1px;
-          background: #0f0;
-          opacity: 0.3;
-        }
-
-        .report-header h3 {
-          color: #0f0;
-          font-size: 0.9rem;
-          letter-spacing: 3px;
-          margin: 0;
-          text-shadow: 0 0 10px #0f0;
-        }
-
-        .roast-text {
-          font-style: italic;
-          line-height: 1.6;
-          color: #fff;
-          font-size: 1.1rem;
-          margin-bottom: 2rem;
-          text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
-        }
-
-        .score-container {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .score-label {
-          color: #0f0;
-          font-size: 0.8rem;
-          font-weight: bold;
-        }
-
-        .score-value {
-          font-size: 2.5rem;
-          font-weight: 900;
-          color: #f00;
-          text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-          line-height: 1;
-        }
-
-        .score-bar {
-          height: 4px;
-          background: #111;
-          width: 100%;
-          margin-top: 0.5rem;
-          position: relative;
-        }
-
-        .score-fill {
-          height: 100%;
-          background: #f00;
-          box-shadow: 0 0 10px #f00;
-          transition: width 1s ease-out;
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        .fade-in {
-          animation: fadeIn 0.8s ease-in;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
+              <div className="bg-black border-t border-terminal-green p-[10px] overflow-hidden">
+                <div className="whitespace-nowrap text-terminal-green text-[0.7rem] animate-scroll-text">
+                  DATA_STREAM: [INFO] FETCHING REPO CONTENT... [SUCCESS] PARSING CODE... [WARN] LAME CODE DETECTED... [CRITICAL] GENAI OVERLOAD... [DONE] ROAST GENERATED
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>}
     </div>
   );
 };

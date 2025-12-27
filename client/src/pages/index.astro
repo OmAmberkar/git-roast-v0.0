@@ -4,36 +4,15 @@ import RoastForm from '../components/RoastForm.jsx';
 ---
 
 <Layout title="GIT_ROAST v1.0 | INITIATE_DESTRUCTION">
-	<main>
-		<h1 class="glitch-header" data-text="GIT_ROAST v1.0">GIT_ROAST v1.0</h1>
+	<main class="m-auto p-4 w-[800px] max-w-[calc(100%-2rem)] flex flex-col items-center justify-center min-h-screen">
+		<h1 class="text-[4rem] font-black text-center mb-8 relative text-terminal-green tracking-[5px] glitch-header" data-text="GIT_ROAST v1.0">GIT_ROAST v1.0</h1>
 		<RoastForm client:load />
-		<p class="footer-msg">PROCEED_WITH_CAUTION // SENSITIVE_ENGINEERS_NOT_ALLOWED</p>
+		<p class="mt-8 text-[0.8rem] opacity-50 tracking-[2px] text-terminal-green">PROCEED_WITH_CAUTION // SENSITIVE_ENGINEERS_NOT_ALLOWED</p>
 	</main>
 </Layout>
 
 <style>
-	main {
-		margin: auto;
-		padding: 1rem;
-		width: 800px;
-		max-width: calc(100% - 2rem);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		min-height: 100vh;
-	}
-	.glitch-header {
-		font-size: 4rem;
-		font-weight: 900;
-		text-align: center;
-		margin-bottom: 2rem;
-		position: relative;
-		color: #0f0;
-		letter-spacing: 5px;
-	}
-	
-	/* Simple Glitch Effect */
+	/* Blue/Cyan Glitch Effect */
 	.glitch-header::before,
 	.glitch-header::after {
 		content: attr(data-text);
@@ -42,17 +21,17 @@ import RoastForm from '../components/RoastForm.jsx';
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background: #0a0a0a;
+		background: #0a0a12; /* Deep Blue Background */
 	}
 	.glitch-header::before {
 		left: 2px;
-		text-shadow: -2px 0 #ff00c1;
+		text-shadow: -2px 0 #00f3ff; /* Cyan Shadow */
 		clip: rect(44px, 450px, 56px, 0);
 		animation: glitch-anim 5s infinite linear alternate-reverse;
 	}
 	.glitch-header::after {
 		left: -2px;
-		text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
+		text-shadow: -2px 0 #00a8ff, 2px 2px #ff00c1; /* Blue/Pink Shadow */
 		animation: glitch-anim2 1s infinite linear alternate-reverse;
 	}
 
@@ -65,12 +44,5 @@ import RoastForm from '../components/RoastForm.jsx';
 	@keyframes glitch-anim2 {
 		0% { clip: rect(65px, 9999px, 100px, 0); transform: skew(0.13deg); }
 		100% { clip: rect(10px, 9999px, 50px, 0); transform: skew(0.8deg); }
-	}
-
-	.footer-msg {
-		margin-top: 2rem;
-		font-size: 0.8rem;
-		opacity: 0.5;
-		letter-spacing: 2px;
 	}
 </style>

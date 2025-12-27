@@ -16,106 +16,33 @@ const { title } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body>
-		<canvas id="matrix-canvas"></canvas>
+	<body class="bg-[#050510] font-mono h-screen w-screen overflow-hidden flex items-center justify-center relative m-0 p-0 selection:bg-cyan-500 selection:text-white">
+		<canvas id="matrix-canvas" class="fixed top-0 left-0 -z-10 opacity-20 filter hue-rotate-180"></canvas>
+		<div id="global-glitch-layer" class="fixed top-0 left-0 w-screen h-screen pointer-events-none z-[9999] bg-transparent"></div>
+		<div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-20 bg-[url('/noise.svg')] mix-blend-overlay"></div>
 		<slot />
 		<style is:global>
+            @tailwind base;
+            @tailwind components;
+            @tailwind utilities;
+
 			:root {
-				--accent: 136, 58, 234;
-				--accent-light: 224, 204, 250;
-				--accent-dark: 49, 10, 101;
-				--accent-gradient: linear-gradient(
-					45deg,
-					rgb(var(--accent)),
-					rgb(var(--accent-light)) 30%,
-					white 60%
-				);
+				--accent: 0, 243, 255;
+				--accent-light: 200, 250, 255;
+				--accent-dark: 0, 50, 80;
 			}
-			html {
-				font-family: 'Courier New', Courier, monospace;
-				background: #0a0a0a;
-				color: #00ff41;
-				overflow-x: hidden;
+
+            /* Dynamic states controlled by JS */
+			#global-glitch-layer.active {
+                @apply bg-[rgba(0,243,255,0.05)] animate-global-flicker;
 			}
-			body {
-				margin: 0;
-				min-height: 100vh;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
+			.suffering {
+				@apply animate-world-shake;
 			}
-			#matrix-canvas {
-				position: fixed;
-				top: 0;
-				left: 0;
-				z-index: -1;
-				opacity: 0.15;
-			}
+
+			::-webkit-scrollbar { width: 6px; }
+			::-webkit-scrollbar-track { background: #050510; }
+			::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 3px; }
 		</style>
-		<script>
-			const canvas = document.getElementById('matrix-canvas') as HTMLCanvasElement;
-			const ctx = canvas.getContext('2d');
-
-			if (ctx) {
-				canvas.width = window.innerWidth;
-				canvas.height = window.innerHeight;
-
-				const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~";
-				const fontSize = 16;
-				const columns = canvas.width / fontSize;
-				const drops = Array(Math.floor(columns)).fill(1);
-
-				function draw() {
-					if (!ctx) return;
-					ctx.fillStyle = "rgba(10, 10, 10, 0.05)";
-					ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-					ctx.fillStyle = "#0f0";
-					ctx.font = fontSize + "px monospace";
-
-					for (let i = 0; i < drops.length; i++) {
-						const text = characters.charAt(Math.floor(Math.random() * characters.length));
-						ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-						if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-							drops[i] = 0;
-						}
-						drops[i]++;
-					}
-				}
-
-				setInterval(draw, 33);
-
-				window.addEventListener('resize', () => {
-					canvas.width = window.innerWidth;
-					canvas.height = window.innerHeight;
-				});
-			}
-
-			// Audio Integration
-			const initAudio = () => {
-				const bgMusic = new Audio('/audio/background sound.mp3');
-				bgMusic.loop = true;
-				bgMusic.volume = 0.3;
-
-				const entrySound = new Audio('/audio/on entry.mpeg');
-				entrySound.volume = 0.5;
-
-				const startAudio = () => {
-					bgMusic.play().catch(() => {});
-					entrySound.play().catch(() => {});
-					// Remove listeners once started
-					document.removeEventListener('click', startAudio);
-					document.removeEventListener('keydown', startAudio);
-				};
-
-				// Browsers often block autoplay, so we wait for first interaction
-				document.addEventListener('click', startAudio);
-				document.addEventListener('keydown', startAudio);
-			};
-
-			initAudio();
-		</script>
 	</body>
 </html>
