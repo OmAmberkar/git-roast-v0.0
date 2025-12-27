@@ -1,0 +1,23 @@
+{
+    "name": "git-roast",
+    "private": true,
+    "scripts": {
+        "prepare": "husky install"
+    },
+    "devDependencies": {
+        "@babel/eslint-parser": "^7.28.5",
+        "@babel/preset-react": "^7.28.5",
+        "husky": "^9.0.0",
+        "lint-staged": "^15.2.0"
+    },
+    "lint-staged": {
+        "client/src/**/*.{js,jsx,astro}": [
+            "npm --prefix client run format",
+            "npm --prefix client run lint"
+        ],
+        "server/**/*.py": [
+            "ruff check --fix --config server/pyproject.toml",
+            "ruff format --config server/pyproject.toml"
+        ]
+    }
+}

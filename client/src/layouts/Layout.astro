@@ -92,6 +92,30 @@ const { title } = Astro.props;
 					canvas.height = window.innerHeight;
 				});
 			}
+
+			// Audio Integration
+			const initAudio = () => {
+				const bgMusic = new Audio('/audio/background sound.mp3');
+				bgMusic.loop = true;
+				bgMusic.volume = 0.3;
+
+				const entrySound = new Audio('/audio/on entry.mpeg');
+				entrySound.volume = 0.5;
+
+				const startAudio = () => {
+					bgMusic.play().catch(() => {});
+					entrySound.play().catch(() => {});
+					// Remove listeners once started
+					document.removeEventListener('click', startAudio);
+					document.removeEventListener('keydown', startAudio);
+				};
+
+				// Browsers often block autoplay, so we wait for first interaction
+				document.addEventListener('click', startAudio);
+				document.addEventListener('keydown', startAudio);
+			};
+
+			initAudio();
 		</script>
 	</body>
 </html>
