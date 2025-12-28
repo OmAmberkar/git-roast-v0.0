@@ -11,7 +11,6 @@ RUN npm install
 COPY client/ ./
 RUN npm run build
 
-
 # Stage 2 : Backend Setup
 FROM python:3.11-slim AS backend-builder
 

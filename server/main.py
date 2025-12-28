@@ -142,13 +142,10 @@ def fetch_repo_content(owner: str, repo: str):
         
     log_to_file(f"DEBUG: CONTENT_FETCH_SUCCESS for {owner}/{repo}")
     return content
-        
-    log_to_file(f"DEBUG: CONTENT_FETCH_SUCCESS for {owner}/{repo}")
-    return content
 
-@app.get("/")
-async def root():
-    return {"message": "GIT_ROAST_BACKEND_ALIVE", "status": "READY_FOR_DESTRUCTION"}
+# @app.get("/")
+# async def root():
+#     return {"message": "GIT_ROAST_BACKEND_ALIVE", "status": "READY_FOR_DESTRUCTION"}
 
 @app.post("/api/roast")
 async def roast_repo(request: RoastRequest):

@@ -75,7 +75,10 @@ const RoastForm = () => {
     );
 
     try {
-      const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://127.0.0.1:8001';
+      // const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://127.0.0.1:8001';
+
+      // for production
+      const apiUrl = import.meta.env.PROD ? '' : 'http://127.0.0.1:8001';
       const response = await fetch(`${apiUrl}/api/roast`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
