@@ -1,0 +1,116 @@
+.roast-container {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    padding: 2.5rem;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #0f2440 0%, var(--bg-card) 100%);
+    border-radius: 18px;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 1px rgba(94, 203, 255, 0.08);
+}
+
+.roast-container::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 20px;
+    background: linear-gradient(120deg,
+            rgba(0, 255, 255, 0.15),
+            rgba(0, 191, 255, 0.05),
+            transparent);
+    z-index: -1;
+    animation: borderPulse 3s ease-in-out infinite;
+}
+
+@keyframes borderPulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Loading State Effects */
+.roast-container.loading::before,
+.roast-container.loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    z-index: 999;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    border-radius: 18px;
+}
+
+.roast-container.loading::before {
+    animation: glitchShift 0.15s infinite linear;
+    filter: hue-rotate(30deg);
+    opacity: 0.4;
+}
+
+.roast-container.loading::after {
+    animation: glitchShift2 0.12s infinite linear;
+    filter: hue-rotate(-40deg);
+    opacity: 0.25;
+}
+
+@keyframes glitchShift {
+    0% {
+        transform: translate(0);
+    }
+
+    25% {
+        transform: translate(-3px, 2px);
+    }
+
+    50% {
+        transform: translate(3px, -2px);
+    }
+
+    75% {
+        transform: translate(-2px, -1px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+}
+
+@keyframes glitchShift2 {
+    0% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(2px, -3px);
+    }
+
+    40% {
+        transform: translate(-3px, 2px);
+    }
+
+    60% {
+        transform: translate(3px, 1px);
+    }
+
+    80% {
+        transform: translate(-1px, -2px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .roast-container {
+        padding: 1.5rem;
+    }
+}

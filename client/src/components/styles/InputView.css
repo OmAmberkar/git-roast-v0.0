@@ -1,0 +1,215 @@
+.terminal-box {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow:
+        inset 0 0 0 1px rgba(94, 203, 255, 0.08),
+        0 20px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.terminal-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(180deg, rgba(94, 203, 255, 0.03), transparent);
+    border-radius: 14px 14px 0 0;
+}
+
+/* Terminal Header with Dots */
+.terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(94, 203, 255, 0.15);
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor;
+}
+
+.dot.red {
+    background: #ff5f56;
+    color: #ff5f56;
+}
+
+.dot.yellow {
+    background: #ffbd2e;
+    color: #ffbd2e;
+}
+
+.dot.cyan {
+    background: var(--neon-cyan);
+    color: var(--neon-cyan);
+}
+
+.terminal-header .title {
+    margin-left: auto;
+    color: var(--accent-blue);
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* Input Row */
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.prompt {
+    color: var(--accent-blue);
+    font-weight: bold;
+    flex-shrink: 0;
+    text-shadow: 0 0 5px rgba(94, 203, 255, 0.5);
+}
+
+.input-row input {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid rgba(94, 203, 255, 0.2);
+    color: var(--text-main);
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+}
+
+.input-row input::placeholder {
+    color: var(--text-muted);
+}
+
+.input-row input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: var(--glow-blue);
+    background: rgba(13, 27, 46, 0.8);
+}
+
+/* Blinking Cursor */
+.blink-cursor {
+    position: absolute;
+    right: 16px;
+    color: var(--accent-blue);
+    animation: blink 1s infinite;
+    font-weight: bold;
+}
+
+@keyframes blink {
+
+    0%,
+    50%,
+    100% {
+        opacity: 1;
+    }
+
+    25%,
+    75% {
+        opacity: 0.3;
+    }
+}
+
+/* Button */
+button {
+    width: 100%;
+    margin-top: 1.2rem;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-soft));
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #04131f;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(94, 203, 255, 0.6);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+button:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Error Box */
+.error-box {
+    margin-top: 15px;
+    border: 1px solid var(--danger-red);
+    color: var(--danger-red);
+    padding: 15px;
+    background: rgba(50, 0, 0, 0.6);
+    border-radius: 8px;
+    animation: errorShake 0.5s ease-in-out;
+    box-shadow: 0 0 20px rgba(255, 77, 109, 0.3);
+}
+
+.error-box p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+@keyframes errorShake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-10px);
+    }
+
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+@media (max-width: 768px) {
+    .terminal-box {
+        padding: 20px;
+    }
+}

@@ -1,0 +1,32 @@
+:root {
+    --accent: 136, 58, 234;
+    --accent-light: 224, 204, 250;
+    --accent-dark: 49, 10, 101;
+}
+
+html {
+    font-family: 'Courier New', Courier, monospace;
+    background: #0a0a0a;
+    color: #00ff41;
+    overflow-x: hidden;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Matrix Canvas Background */
+#matrix-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    opacity: 0.15;
+    pointer-events: none;
+}

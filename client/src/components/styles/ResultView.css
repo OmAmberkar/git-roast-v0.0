@@ -1,0 +1,234 @@
+.result-box {
+    animation: resultReveal 0.4s ease-out;
+}
+
+@keyframes resultReveal {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Result Header */
+.result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(94, 203, 255, 0.2);
+}
+
+.result-header h2 {
+    margin: 0;
+    color: var(--accent-blue);
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(94, 203, 255, 0.5);
+}
+
+.recording {
+    background: var(--danger-red);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    animation: recordingPulse 1.5s infinite;
+    box-shadow: 0 0 15px rgba(255, 77, 109, 0.6);
+}
+
+@keyframes recordingPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.result-header button {
+    width: auto;
+    margin: 0;
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    background: linear-gradient(135deg, #1a3a52, #0d1b2e);
+    color: var(--accent-blue);
+    border: 1px solid var(--accent-blue);
+}
+
+.result-header button:hover {
+    background: linear-gradient(135deg, #2a4a62, #1d2b3e);
+    box-shadow: 0 5px 15px rgba(94, 203, 255, 0.4);
+}
+
+/* Result Body */
+.result-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Roast Display */
+.roast-display {
+    background: rgba(13, 27, 46, 0.6);
+    border: 1px solid rgba(94, 203, 255, 0.15);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.roast-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+    animation: scanHorizontal 2s linear infinite;
+}
+
+@keyframes scanHorizontal {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
+.header-label {
+    color: var(--accent-blue);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.roast-text {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-main);
+    font-style: italic;
+    text-shadow: 0 0 5px rgba(230, 241, 255, 0.2);
+}
+
+/* Stats Display */
+.stats-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stat {
+    background: rgba(13, 27, 46, 0.6);
+    border: 1px solid rgba(94, 203, 255, 0.15);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.stat>div:first-child {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    color: var(--accent-blue);
+    font-size: 2rem;
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(94, 203, 255, 0.5);
+    margin-bottom: 10px;
+}
+
+.stat-bar {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.stat-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--danger-red), var(--accent-blue));
+    border-radius: 4px;
+    transition: width 1s ease-out;
+    box-shadow: 0 0 10px currentColor;
+    animation: fillPulse 2s infinite;
+}
+
+@keyframes fillPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Data Stream */
+.data-stream {
+    margin-top: 20px;
+    padding: 15px 15px 15px 30px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(94, 203, 255, 0.1);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    position: relative;
+}
+
+.data-stream::before {
+    content: '>';
+    position: absolute;
+    left: 15px;
+    color: var(--accent-blue);
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    50%,
+    100% {
+        opacity: 1;
+    }
+
+    25%,
+    75% {
+        opacity: 0.3;
+    }
+}
+
+@media (max-width: 768px) {
+    .result-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .result-header button {
+        width: 100%;
+    }
+
+    .stats-display {
+        grid-template-columns: 1fr;
+    }
+}
