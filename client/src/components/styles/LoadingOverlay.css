@@ -1,181 +1,150 @@
-/* .loading-overlay {
+.loading-overlay {
     position: absolute;
     inset: 0;
-    border-radius: 14px;
-    background: rgba(5, 10, 20, 0.92);
-    z-index: 1000;
+    background: rgba(6, 8, 10, 0.98);
     display: flex;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(4px);
-} */
-
-/* Glitch Scanner */
-.glitch-scanner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-    animation: scan 3s linear infinite;
-    z-index: 1001;
-    box-shadow: 0 0 20px var(--neon-cyan);
+    z-index: 9999;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    border-radius: 18px;
 }
 
-@keyframes scan {
-    from {
-        top: 0;
-    }
-
-    to {
-        top: 100%;
-    }
+.loading-content {
+    width: 90%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
 }
 
-/* Loading Center */
-.brain-melting-center {
-    text-align: center;
-    animation: flicker 1.5s infinite;
+.terminal-simulation {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 70, 85, 0.4);
+    border-radius: 4px;
+    padding: 1.5rem;
+    font-family: 'Courier New', monospace;
     position: relative;
-    z-index: 1002;
+    box-shadow: 0 0 30px rgba(255, 70, 85, 0.1);
 }
 
-@keyframes flicker {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.85;
-    }
+.terminal-header {
+    color: var(--primary);
+    font-family: 'Valorant', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
 }
 
-/* Overload Text */
-.overload-text {
-    font-size: 1.8rem;
-    color: var(--neon-cyan);
-    text-shadow:
-        0 0 10px var(--neon-blue),
-        0 0 30px var(--neon-blue),
-        0 0 50px rgba(0, 191, 255, 0.3);
-    animation: pulseGlow 1s infinite;
-    font-weight: bold;
+.terminal-header .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    animation: blink 0.5s infinite;
+}
+
+.terminal-body {
+    height: 160px;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.log-line {
+    font-size: 0.7rem;
+    color: var(--text-main);
+    opacity: 0.9;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.log-line .timestamp {
+    color: var(--cyan);
+    margin-right: 0.6rem;
+    opacity: 0.5;
+}
+
+.progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    color: var(--cyan);
     letter-spacing: 2px;
 }
 
-@keyframes pulseGlow {
-
-    0%,
-    100% {
-        text-shadow: 0 0 10px var(--neon-blue);
-    }
-
-    50% {
-        text-shadow: 0 0 25px var(--neon-cyan), 0 0 50px var(--neon-cyan);
-    }
-}
-
-/* Symptoms Box */
-.symptoms {
-    margin-top: 15px;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 15px;
-    border: 1px solid var(--neon-blue);
-    border-radius: 8px;
-    text-align: left;
-    font-size: 0.85rem;
-    box-shadow: inset 0 0 20px rgba(0, 191, 255, 0.1);
-}
-
-.symptoms span {
-    display: block;
-    margin: 4px 0;
-    color: var(--accent-blue-soft);
-}
-
-.symptoms .critical {
-    color: var(--danger-red);
-    animation: criticalBlink 0.8s infinite;
-}
-
-@keyframes criticalBlink {
-
-    0%,
-    50%,
-    100% {
-        opacity: 1;
-    }
-
-    25%,
-    75% {
-        opacity: 0.3;
-    }
-}
-
-/* Loading Bar */
-.loading-bar {
-    width: 220px;
-    height: 10px;
-    margin: 20px auto 0;
-    background: #001a33;
-    border-radius: 6px;
+.progress-bar-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    position: relative;
     overflow: hidden;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
 }
 
-.loading-fill {
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg,
-            transparent,
-            var(--neon-blue),
-            var(--neon-cyan),
-            transparent);
-    animation: loadingGlitch 0.8s infinite;
-    box-shadow: 0 0 15px var(--neon-blue);
-}
-
-@keyframes loadingGlitch {
-    from {
-        transform: translateX(-100%);
-    }
-
-    to {
-        transform: translateX(300%);
-    }
-}
-
-/* Noise Canvas */
-.noise-canvas {
+/* Shimmer effect for "empty" part of the bar */
+.progress-bg-shimmer {
     position: absolute;
     inset: 0;
-    border-radius: 14px;
-    background-image:
-        repeating-linear-gradient(to bottom,
-            rgba(255, 255, 255, 0.02),
-            rgba(255, 255, 255, 0.02) 1px,
-            transparent 1px,
-            transparent 3px);
-    animation: scanlines 0.2s linear infinite;
-    pointer-events: none;
-    z-index: 10;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.05) 50%, 
+        transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
 }
 
-@keyframes scanlines {
-    from {
-        background-position: 0 0;
-    }
-
-    to {
-        background-position: 0 4px;
-    }
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
 }
 
-@media (max-width: 768px) {
-    .overload-text {
-        font-size: 1.3rem;
+.progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--cyan));
+    box-shadow: 0 0 15px var(--primary);
+    z-index: 2;
+}
+
+.loading-glitch {
+    font-family: 'Courier New', monospace;
+    font-size: 0.6rem;
+    text-align: center;
+    color: var(--primary);
+    letter-spacing: 2px;
+    animation: glitchOpacity 0.15s infinite;
+    opacity: 0.8;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+@keyframes glitchOpacity {
+    0%, 100% { opacity: 0.7; transform: skew(0deg); }
+    20% { opacity: 0.9; transform: skew(2deg); }
+    40% { opacity: 0.6; transform: skew(-1deg); }
+    60% { opacity: 1; transform: skew(0.5deg); }
+}
+
+@media (max-width: 480px) {
+    .loading-content {
+        width: 95%;
     }
 }

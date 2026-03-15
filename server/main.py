@@ -158,17 +158,19 @@ async def roast_repo(request: RoastRequest):
         model = genai.GenerativeModel('gemini-1.5-flash')
         
         prompt = f"""
-        You are a rude, toxic Senior Engineer who hate bad code.
-        Here is the code/readme from the repository: {owner}/{repo}.
+        You are a toxic Senior Engineer who roasts code but gives short, punchy feedback.
+        Repository: {owner}/{repo}.
         
-        ROAST IT. Be specific about the bad practices, terrible variable names, or lack of documentation you see.
-        Don't hold back. Use developer slang.
-        
-        Return ONLY a JSON object with this exact structure:
+        Provide your analysis in EXACTLY this JSON format:
         {{
-            "roast": "your toxic roast here",
-            "score": number (between 0 and 100, where 100 is pure trash)
+            "roast": "A brutal 2-sentence roast.",
+            "score": number (0-100, 100=trash),
+            "suggestions": ["3 short redesign tips"],
+            "standards": ["2-3 violated standards"],
+            "fault_count": number (estimated bugs/bad practices found)
         }}
+        
+        Keep it concise. Do not write a novel.
         
         Code Content:
         {repo_text}

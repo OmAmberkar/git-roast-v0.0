@@ -124,8 +124,16 @@ const RoastForm = () => {
   };
 
   return (
-    <div className={`roast-container ${loading ? 'loading' : ''}`}>
+    <div className={`roast-container ${loading ? 'loading' : ''} ${view === 'result' ? 'full-screen-result' : ''}`}>
       {loading && <LoadingOverlay />}
+
+      {/* Conditionally show the big header only on input screen */}
+      {view === 'input' && !loading && (
+        <div className="header-container animate-header">
+          <h1 className="valo-header" data-text="GIT_ROAST">GIT_ROAST</h1>
+          <p className="sub-header">TERMINATE_CLEAN_CODE.exe</p>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {!loading && (
@@ -150,6 +158,7 @@ const RoastForm = () => {
               <ResultView
                 roastData={roastData}
                 setView={setView}
+                repoUrl={repoUrl}
               />
             )}
           </motion.div>

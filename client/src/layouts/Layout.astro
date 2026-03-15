@@ -20,40 +20,6 @@ const { title } = Astro.props;
 	<body>
 		<canvas id="matrix-canvas"></canvas>
 		<slot />
-		<style is:global>
-			:root {
-				--accent: 136, 58, 234;
-				--accent-light: 224, 204, 250;
-				--accent-dark: 49, 10, 101;
-				--accent-gradient: linear-gradient(
-					45deg,
-					rgb(var(--accent)),
-					rgb(var(--accent-light)) 30%,
-					white 60%
-				);
-			}
-			html {
-				font-family: 'Courier New', Courier, monospace;
-				background: #0a0a0a;
-				color: #00ff41;
-				overflow-x: hidden;
-			}
-			body {
-				margin: 0;
-				min-height: 100vh;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-			}
-			#matrix-canvas {
-				position: fixed;
-				top: 0;
-				left: 0;
-				z-index: -1;
-				opacity: 0.15;
-			}
-		</style>
 		<script>
 			const canvas = document.getElementById('matrix-canvas') as HTMLCanvasElement;
 			const ctx = canvas.getContext('2d');
@@ -69,10 +35,10 @@ const { title } = Astro.props;
 
 				function draw() {
 					if (!ctx) return;
-					ctx.fillStyle = "rgba(10, 10, 10, 0.05)";
+					ctx.fillStyle = "rgba(6, 8, 10, 0.05)";
 					ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-					ctx.fillStyle = "#0f0";
+					ctx.fillStyle = "#ff4655"; // Valorant Red
 					ctx.font = fontSize + "px monospace";
 
 					for (let i = 0; i < drops.length; i++) {
@@ -98,25 +64,23 @@ const { title } = Astro.props;
 			const initAudio = () => {
 				const bgMusic = new Audio('/audio/background sound.mp3');
 				bgMusic.loop = true;
-				bgMusic.volume = 0.3;
+				bgMusic.volume = 0.2;
 
 				const entrySound = new Audio('/audio/on entry.mpeg');
-				entrySound.volume = 0.5;
+				entrySound.volume = 0.4;
 
 				const startAudio = () => {
 					bgMusic.play().catch(() => {});
 					entrySound.play().catch(() => {});
-					// Remove listeners once started
 					document.removeEventListener('click', startAudio);
 					document.removeEventListener('keydown', startAudio);
 				};
 
-				// Browsers often block autoplay, so we wait for first interaction
 				document.addEventListener('click', startAudio);
 				document.addEventListener('keydown', startAudio);
 			};
 
-			initAudio();
+			window.addEventListener('DOMContentLoaded', initAudio);
 		</script>
 	</body>
 </html>

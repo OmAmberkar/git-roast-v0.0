@@ -4,72 +4,151 @@ import RoastForm from '../components/RoastForm.jsx';
 import './_index.css';
 ---
 
-<Layout title="GIT_ROAST v1.0 | INITIATE_DESTRUCTION">
+<Layout title="GIT_ROAST // PROTOCOL_V1.0">
 	<main>
-		<h1 class="glitch-header" data-text="GIT_ROAST v1.0">GIT_ROAST v1.0</h1>
+		<div class="system-status">
+			<span class="status-box">SYSTEM: ACTIVE</span>
+			<span class="status-box">SECURITY: BYPASSED</span>
+			<span class="status-box teal">LOAD: CRITICAL</span>
+		</div>
+		
 		<RoastForm client:load />
-		<p class="footer-msg">PROCEED_WITH_CAUTION // SENSITIVE_ENGINEERS_NOT_ALLOWED</p>
+
+		<div class="footer-container">
+			<div class="scan-line"></div>
+			<p class="footer-msg">AUTHORIZATION_LEVEL: DEV_DEVIL // CORE_TEMP: 104°C</p>
+		</div>
 	</main>
 </Layout>
 
+<script>
+	import { gsap } from 'gsap';
+
+	window.addEventListener('load', () => {
+		// GSAP Initial Animations
+		gsap.from('.valo-header', {
+			y: 100,
+			opacity: 0,
+			duration: 1.2,
+			ease: "power4.out",
+			delay: 0.2
+		});
+
+		gsap.from('.status-box', {
+			y: -20,
+			opacity: 0,
+			stagger: 0.1,
+			duration: 0.6,
+			ease: "back.out(1.7)",
+			delay: 0.8
+		});
+
+		gsap.from('.sub-header', {
+			opacity: 0,
+			duration: 1,
+			delay: 1
+		});
+	});
+</script>
+
 <style>
 	main {
-		margin: auto;
-		padding: 1rem;
-		width: 800px;
-		max-width: calc(100% - 2rem);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-	}
-	.glitch-header {
-		font-size: 4rem;
-		font-weight: 900;
-		text-align: center;
-		margin-bottom: 2rem;
-		position: relative;
-		color: #0f0;
-		letter-spacing: 5px;
-	}
-	
-	/* Simple Glitch Effect */
-	.glitch-header::before,
-	.glitch-header::after {
-		content: attr(data-text);
-		position: absolute;
-		top: 0;
-		left: 0;
+		justify-content: center;
+		min-height: 100vh;
 		width: 100%;
-		height: 100%;
-		background: #0a0a0a;
-	}
-	.glitch-header::before {
-		left: 2px;
-		text-shadow: -2px 0 #ff00c1;
-		clip: rect(44px, 450px, 56px, 0);
-		animation: glitch-anim 5s infinite linear alternate-reverse;
-	}
-	.glitch-header::after {
-		left: -2px;
-		text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
-		animation: glitch-anim2 1s infinite linear alternate-reverse;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 2rem;
+		position: relative;
+		z-index: 10;
 	}
 
-	@keyframes glitch-anim {
-		0% { clip: rect(31px, 9999px, 94px, 0); transform: skew(0.85deg); }
-		5% { clip: rect(70px, 9999px, 71px, 0); transform: skew(0.05deg); }
-		/* ... simplified ... */
-		100% { clip: rect(67px, 9999px, 62px, 0); transform: skew(0.6deg); }
+	.system-status {
+		display: flex;
+		gap: 1rem;
+		margin-bottom: 2rem;
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 0.65rem;
+		letter-spacing: 2px;
 	}
-	@keyframes glitch-anim2 {
-		0% { clip: rect(65px, 9999px, 100px, 0); transform: skew(0.13deg); }
-		100% { clip: rect(10px, 9999px, 50px, 0); transform: skew(0.8deg); }
+
+	.status-box {
+		padding: 4px 12px;
+		border: 1px solid var(--primary);
+		color: var(--primary);
+		background: rgba(255, 70, 85, 0.05);
+		text-transform: uppercase;
+	}
+
+	.status-box.teal {
+		border-color: var(--cyan);
+		color: var(--cyan);
+		background: rgba(0, 243, 255, 0.05);
+	}
+
+	.header-container {
+		text-align: center;
+		margin-bottom: 3rem;
+	}
+
+	.valo-header {
+		font-family: 'Valorant', sans-serif;
+		font-size: clamp(3rem, 12vw, 9rem);
+		line-height: 0.9;
+		margin: 0;
+		color: var(--primary);
+		text-shadow: 0 0 20px rgba(255, 70, 85, 0.3);
+		position: relative;
+		letter-spacing: -2px;
+	}
+
+	.sub-header {
+		font-family: 'Courier New', Courier, monospace;
+		letter-spacing: 15px;
+		font-size: 0.8rem;
+		margin-top: 1rem;
+		opacity: 0.6;
+		color: var(--cyan);
+		text-transform: uppercase;
+	}
+
+	.footer-container {
+		margin-top: 3rem;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		opacity: 0.5;
+	}
+
+	.scan-line {
+		width: 100px;
+		height: 1px;
+		background: var(--primary);
+		margin-bottom: 1rem;
+		box-shadow: 0 0 10px var(--primary);
 	}
 
 	.footer-msg {
-		margin-top: 2rem;
-		font-size: 0.8rem;
-		opacity: 0.5;
-		letter-spacing: 2px;
+		font-family: 'Courier New', Courier, monospace;
+		font-size: 0.6rem;
+		letter-spacing: 4px;
+	}
+
+	@media (max-width: 768px) {
+		.valo-header {
+			font-size: 3.5rem;
+			letter-spacing: 0;
+		}
+		.sub-header {
+			letter-spacing: 5px;
+			font-size: 0.6rem;
+		}
+		main {
+			padding: 1rem;
+		}
 	}
 </style>
