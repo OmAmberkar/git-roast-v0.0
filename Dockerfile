@@ -9,6 +9,7 @@ COPY . .
 WORKDIR /app/client
 RUN npm install
 RUN npm run build
+RUN rm -rf node_modules
 
 WORKDIR /app/server
 RUN pip install --no-cache-dir --break-system-packages -r requirements.txt

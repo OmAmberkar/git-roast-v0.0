@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: git-roast-app
+    env: docker
+    region: oregon 
+    plan: free
+    dockerCommand: python3 server/main.py
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false # You will need to provide this manually inside Render dashboard
+      - key: GITHUB_TOKEN
+        sync: false # You will need to provide this manually inside Render dashboard
+      - key: PORT
+        value: 10000
