@@ -328,15 +328,60 @@
     .split-view-container {
         flex-direction: column;
         overflow-y: auto;
+        position: relative; /* Remove fixed position on mobile to allow natural scrolling */
+        height: auto;
+        min-height: 100vh;
     }
 
     .info-panel {
         flex: none;
-        padding: 2rem;
+        padding: 2rem 1rem;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 70, 85, 0.3);
+    }
+
+    .panel-inner {
+        max-width: 100%;
+    }
+
+    .valo-header-sm {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .status-mini-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .data-panel {
-        padding: 2rem;
+        padding: 2rem 1rem;
         flex: none;
+        overflow-y: visible; /* Scroll happens on the container */
+    }
+
+    .big-score {
+        font-size: clamp(4rem, 15vw, 6rem);
+    }
+    
+    .roast-quote {
+        font-size: 1.2rem;
+        padding-left: 1rem;
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .results-grid {
+        gap: 1.5rem;
+    }
+    .score-wrapper .unit {
+        font-size: 1.2rem;
+    }
+    .glitch-list li {
+        font-size: 0.85rem;
+        padding-left: 1.5rem;
+    }
+    .glitch-list li::before {
+        font-size: 0.7rem;
     }
 }
